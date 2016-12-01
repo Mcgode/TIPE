@@ -11,6 +11,7 @@ def max_spe(t):
 
     return maxima
 
+
 def min_spe(t):
     l = len(t[0])
     minima = [e for e in t[0]]
