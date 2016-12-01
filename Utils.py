@@ -23,10 +23,13 @@ def min_spe(t):
     return minima
 
 
-def save_all_data(t, res, thetas, filename='/Users/max/Desktop/data.csv'):
+def save_all_data(t, res, thetas, smoothing=0, filename='/Users/max/Desktop/data.csv'):
 
     f = open(filename, 'w')
+    f.write('t,a,v,x,theta,\n')
     data = [[t[i], res[i][0], res[i][1], res[i][2], thetas[i]] for i in range(len(t))]
+    if smoothing > 0:
+        data = smooth(data, smoothing)
     for e in data:
         string = ''
         for p in e:
@@ -34,3 +37,40 @@ def save_all_data(t, res, thetas, filename='/Users/max/Desktop/data.csv'):
         string += '\n'
         f.write(string)
     f.close()
+
+
+def smooth(data, n):
+    assert n > 0
+    step = (data[-1][0] - data[0][0]) / n
+    i = 0
+    result = [data[0]]
+    for j in range(1, n-1):
+        while step * j < data[i][0]:
+            i += 1
+        d1, d2 = data[i - 1], data[i]
+        dt = d2[0] - d1[0]
+        f = (j * step - d1[0]) / dt
+        r = [d2[k] + f * (d2[k] - d1[k]) for k in range(len(d1))]
+        result.append(r)
+    result.append(data[-1])
+    return result
+
+
+def save_pos_and_theta(t, res, thetas):
+
+    f1 = open('/Users/max/Desktop/x.txt', 'w')
+    data = [[t[i], res[i][2]] for i in range(len(t))]
+    for e in data:
+        string = ("%.14f,%.14f\n" % (e[0], e[1]))
+        f1.write(string)
+    f1.close()
+
+    f2 = open('/Users/max/Desktop/theta.txt', 'w')
+    data = [[t[i], thetas[i]] for i in range(len(t))]
+    for e in data:
+        string = ("%.14f,%.14f\n" % (e[0], e[1]))
+        f2.write(string)
+    f2.close()
+
+
+

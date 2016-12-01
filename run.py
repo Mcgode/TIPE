@@ -45,7 +45,7 @@ T3 = time()
 print('Data regroup process took {0} seconds'.format(T3 - T2))
 
 T4 = time()
-Utils.save_all_data(t, res, thetas)
+Utils.save_pos_and_theta(t, res, thetas)
 T5 = time()
 
 print('Data save process took {0} seconds'.format(T5 - T4))
@@ -66,7 +66,7 @@ plt.legend(loc=2)
 plt.xlabel('Temps t en s')
 
 plt.grid()
-plt.show()
+#plt.show()
 
 
 plt.plot(t, [(180 / np.pi) * theta_f for _ in t], label='theta_f', color='green')
@@ -80,4 +80,4 @@ plt.plot([t4[-1], t4[-1]], [np.floor(np.max(thetas) / 5) * 5 + 5, 0], color='cya
 plt.legend(loc=5)
 plt.xlabel('Temps t en s')
 plt.grid()
-plt.show()
+#plt.show()
