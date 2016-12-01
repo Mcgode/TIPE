@@ -4,12 +4,18 @@ from scipy.optimize import ridder
 
 g = 9.81
 
+
+def log(s):
+    print('    {0}'.format(s))
+
+
 def integ_table(table, t, res_0):
     res = [res_0]
     for i in range(1, len(t)):
         dt = t[i] - t[i - 1]
         dtable = table[i] - table[i - 1]
         res.append(res[i - 1] + dtable * dt)
+
 
 def etape_1(theta_final, a_retour, acc_ang_max):
     delta_theta = np.arctan(a_retour / g)
@@ -158,12 +164,12 @@ def etape_5(a_r, theta_final, acc_ang_max, delta_v):
 
         return x, v, a, thetas, T, T_demi
 
-    print('vT(0) = {0}'.format(vT(0)))
-    print('vT(delta_theta) = {0}'.format(vT(delta_theta)))
-    print('delta_v = {0}'.format(delta_v))
+    log('vT(0) = {0}'.format(vT(0)))
+    log('vT(delta_theta) = {0}'.format(vT(delta_theta)))
+    log('delta_v = {0}'.format(delta_v))
 
     if vT(delta_theta) < -delta_v / 2:
-        print('Will go easy way')
+        log('Will go easy way')
         v_T = vT(delta_theta)
         x1, v1, a1, thetas1, T_1, T_demi_1 = make_x_v_a(0, -delta_theta, delta_v)
         x2, v2, a2, thetas2, T_2, T_demi_2 = make_x_v_a(-delta_theta, 0, -v_T)
@@ -172,19 +178,19 @@ def etape_5(a_r, theta_final, acc_ang_max, delta_v):
 
         return None
 
-    print('Will go hard way')
-    print('Looking for theta value')
+    log('Will go hard way')
+    log('Looking for theta value')
 
     f = lambda x: vT(x) + (delta_v / 2)
 
-    print('f(0) = {0}'.format(f(0)))
-    print('f(delta_theta) = {0}'.format(f(delta_theta)))
-    print('delta_v/2 = {0}'.format(delta_v / 2))
+    log('f(0) = {0}'.format(f(0)))
+    log('f(delta_theta) = {0}'.format(f(delta_theta)))
+    log('delta_v/2 = {0}'.format(delta_v / 2))
 
     sol = ridder(f, 0, delta_theta)
 
-    print('sol = {0}'.format(sol))
-    print('| vT(sol) - |delta_theta| | = {0}'.format(abs(vT(sol, 1000) + delta_v/2)))
+    log('sol = {0}'.format(sol))
+    log('| vT(sol) - |delta_theta| | = {0}'.format(abs(vT(sol, 1000) + delta_v/2)))
 
     x1, v1, a1, thetas1, T_1, T_demi_1 = make_x_v_a(0, -sol, delta_v)
     x2, v2, a2, thetas2, T_2, T_demi_2 = make_x_v_a(-sol, 0, delta_v / 2)

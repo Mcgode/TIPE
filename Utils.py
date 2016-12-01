@@ -1,5 +1,4 @@
 
-
 def max_spe(t):
     l = len(t[0])
     maxima = [e for e in t[0]]
@@ -22,3 +21,16 @@ def min_spe(t):
                 minima[j] = t[i][j]
 
     return minima
+
+
+def save_all_data(t, res, thetas, filename='/Users/max/Desktop/data.csv'):
+
+    f = open(filename, 'w')
+    data = [[t[i], res[i][0], res[i][1], res[i][2], thetas[i]] for i in range(len(t))]
+    for e in data:
+        string = ''
+        for p in e:
+            string += ("\"%.14f\"," % p).replace('.', ',');
+        string += '\n'
+        f.write(string)
+    f.close()
