@@ -45,7 +45,7 @@ T3 = time()
 print('Data regroup process took {0} seconds'.format(T3 - T2))
 
 T4 = time()
-Utils.save_pos_and_theta(t, res, thetas)
+Utils.save_pos_and_theta(t, res, thetas, 500)
 T5 = time()
 
 print('Data save process took {0} seconds'.format(T5 - T4))
