@@ -1,3 +1,5 @@
+from numpy import pi
+
 
 def max_spe(t):
     l = len(t[0])
@@ -58,23 +60,14 @@ def smooth(data, n):
 
 def save_pos_and_theta(t, res, thetas, n=0):
 
-    f1 = open('/Users/max/Desktop/x.csv', 'w')
-    data = [[t[i], res[i][0]] for i in range(len(t))]
+    file = open('/Users/max/Desktop/res.csv', 'w')
+    data = [[t[i], res[i][0], thetas[i] * pi / 180] for i in range(len(t))]
     if n > 0:
         data = smooth(data, n)
     for e in data:
         string = ("\"%.14f\",\"%.14f\"\n" % (e[0], e[1])).replace('.', ',')
-        f1.write(string)
-    f1.close()
-
-    f2 = open('/Users/max/Desktop/theta.csv', 'w')
-    data = [[t[i], thetas[i]] for i in range(len(t))]
-    if n > 0:
-        data = smooth(data, n)
-    for e in data:
-        string = ("\"%.14f\",\"%.14f\"\n" % (e[0], e[1])).replace('.', ',')
-        f2.write(string)
-    f2.close()
+        file.write(string)
+    file.close()
 
 
 

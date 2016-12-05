@@ -6,7 +6,7 @@ import Utils
 from time import time
 
 g = 9.81
-al = 0.5 * g
+al = 0.3 * g
 
 max_acc_ang = 1
 a_r = 1
@@ -45,7 +45,7 @@ T3 = time()
 print('Data regroup process took {0} seconds'.format(T3 - T2))
 
 T4 = time()
-Utils.save_pos_and_theta(t, res, thetas, 500)
+Utils.save_pos_and_theta(t, res, thetas, 1000)
 T5 = time()
 
 print('Data save process took {0} seconds'.format(T5 - T4))
@@ -66,7 +66,7 @@ plt.legend(loc=2)
 plt.xlabel('Temps t en s')
 
 plt.grid()
-#plt.show()
+plt.show()
 
 
 plt.plot(t, [(180 / np.pi) * theta_f for _ in t], label='theta_f', color='green')
