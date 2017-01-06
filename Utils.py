@@ -63,6 +63,11 @@ def save_pos_and_theta(t, res, thetas, n=0):
     file = open('/Users/max/Desktop/res.csv', 'w')
     print(len(res), len(t), len(thetas))
     data = [[t[i], res[i][0], (thetas[i] * pi / 180)] for i in range(len(t))]
+    maximum = data[0][1]
+    for e in data:
+        if e[1] > maximum:
+            maximum = e[1]
+    print("Maximum: %.2f" % maximum)
     if n > 0:
         data = smooth(data, n)
     for e in data:

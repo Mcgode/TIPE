@@ -6,12 +6,13 @@ import Utils
 from time import time
 
 g = 9.81
-al = 0.3 * g
+al = 0.15 * g
 
 max_acc_ang = 1
-a_r = 1
+a_r = 10
 
 theta_f = np.arccos(g / np.sqrt(al ** 2 + g ** 2))
+a_r = min(a_r, al * 0.45)
 
 T0 = time()
 
