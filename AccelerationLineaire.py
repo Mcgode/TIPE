@@ -13,8 +13,8 @@ def integ_table(table, t, res_0):
     res = [res_0]
     for i in range(1, len(t)):
         dt = t[i] - t[i - 1]
-        dtable = table[i] - table[i - 1]
-        res.append(res[i - 1] + dtable * dt)
+        res.append(res[i - 1] + table[i] * dt)
+    return res
 
 
 def etape_1(theta_final, a_retour, acc_ang_max):
@@ -25,26 +25,16 @@ def etape_1(theta_final, a_retour, acc_ang_max):
     f_1 = lambda x: g * np.tan(theta_final - 0.5 * acc_ang_max * x ** 2)
     f_2 = lambda x: g * np.tan(0.5 * acc_ang_max * (T - x) ** 2 - delta_theta)
 
-    g_1 = lambda t: quad(f_1, 0, t)[0]
-    g_2 = lambda t: quad(f_2, T_demi, t)[0]
-
-    x_1 = lambda u: quad(g_1, 0, u)[0]
-    x_2 = lambda u: quad(g_2, T_demi, u)[0] + (u - T_demi) * g_1(T_demi)
-
-    def x(t):
-        if t > T_demi:
-            return x_1(T_demi) + x_2(t)
-        return x_1(t)
-
-    def v(t):
-        if t > T_demi:
-            return g_1(T_demi) + g_2(t)
-        return g_1(t)
+    ts = np.linspace(0, T, 200)
 
     def a(t):
         if t > T_demi:
             return f_2(t)
         return f_1(t)
+
+    les_a = [a(t) for t in ts]
+    les_v = integ_table(les_a, ts, 0)
+    les_x = integ_table(les_v, ts, 0)
 
     def theta(t):
         if t < T_demi:
@@ -53,7 +43,9 @@ def etape_1(theta_final, a_retour, acc_ang_max):
 
     thetas = [theta(t) for t in np.linspace(0, T, 200)]
 
-    return [(x(t), v(t), a(t)) for t in np.linspace(0, T, 200)], np.linspace(0, T, 200), thetas
+    res = [[les_x[i], les_v[i], les_a[i]] for i in range(len(les_a))]
+
+    return res, ts, thetas
 
 
 def etape_2(a_r, theta, v_1, x_1=0, t0=0):
@@ -71,24 +63,10 @@ def etape_3(a_retour, theta_final, acc_ang_max, v_e2, x_e2, t0):
     T_demi = T / 2
     sg = delta / abs(delta)
 
+    ts = np.linspace(0, T, 200)
+
     f_1 = lambda x: g * np.tan(theta_final - (sg * 0.5 * acc_ang_max * (x ** 2) + theta_1))
     f_2 = lambda x: g * np.tan(theta_final - (-sg * 0.5 * acc_ang_max * (T - x) ** 2 + theta_2))
-
-    g_1 = lambda t: quad(f_1, 0, t)[0] + v_e2
-    g_2 = lambda t: quad(f_2, T_demi, t)[0]
-
-    x_1 = lambda u: quad(g_1, 0, u)[0] + x_e2
-    x_2 = lambda u: quad(g_2, T_demi, u)[0] + (u - T_demi) * g_1(T_demi)
-
-    def x(t):
-        if t > T_demi:
-            return x_1(T_demi) + x_2(t)
-        return x_1(t)
-
-    def v(t):
-        if t > T_demi:
-            return g_1(T_demi) + g_2(t)
-        return g_1(t)
 
     def a(t):
         if t > T_demi:
@@ -102,8 +80,13 @@ def etape_3(a_retour, theta_final, acc_ang_max, v_e2, x_e2, t0):
 
     thetas = [theta(t) for t in np.linspace(0, T, 200)]
 
+    les_a = [a(t) for t in ts]
+    les_v = integ_table(les_a, ts, v_e2)
+    les_x = integ_table(les_v, ts, x_e2)
+    res = [[les_x[i], les_v[i], les_a[i]] for i in range(len(les_a))]
+
     t = [e + t0 for e in np.linspace(0, T, 200)]
-    return [(x(t), v(t), a(t)) for t in np.linspace(0, T, 200)], t, thetas
+    return res, t, thetas
 
 
 def etape_5(a_r, theta_final, acc_ang_max, delta_v):
@@ -122,7 +105,7 @@ def etape_5(a_r, theta_final, acc_ang_max, delta_v):
         f_1 = lambda x: g * np.tan(theta_final - (sg * 0.5 * acc_ang_max * (x ** 2) + theta_1))
         f_2 = lambda x: g * np.tan(theta_final - (-sg * 0.5 * acc_ang_max * (T - x) ** 2 + theta_2))
 
-        v1, v2 = quad(f_1, 0, T_demi, limit=n), quad(f_2, T_demi, T, limit=n)
+        v1, v2 = quad(f_1, 0, T_demi, limit=n // 2), quad(f_2, T_demi, T, limit=n // 2)
         return v1[0] + v2[0]
 
     def make_x_v_a(theta1, theta2, v0):

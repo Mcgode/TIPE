@@ -61,7 +61,8 @@ def smooth(data, n):
 def save_pos_and_theta(t, res, thetas, n=0):
 
     file = open('/Users/max/Desktop/res.csv', 'w')
-    data = [[t[i], res[i][0], thetas[i] * pi / 180] for i in range(len(t))]
+    print(len(res), len(t), len(thetas))
+    data = [[t[i], res[i][0], (thetas[i] * pi / 180)] for i in range(len(t))]
     if n > 0:
         data = smooth(data, n)
     for e in data:

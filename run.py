@@ -15,19 +15,29 @@ theta_f = np.arccos(g / np.sqrt(al**2 + g**2))
 
 T0 = time()
 
+t_1 = time()
 res1, t1, thetas_1 = a_l.etape_1(theta_f, a_r, max_acc_ang)
 
+t_2 = time()
 res2, t2, thetas_2 = a_l.etape_2(a_r, thetas_1[-1], res1[-1][1], res1[-1][0], t1[-1])
 
+t_3 = time()
 res3, t3, thetas_3 = a_l.etape_3(a_r, theta_f, max_acc_ang, res2[-1][1], res2[-1][0], t2[-1])
 
+t_5 = time()
 res5, t5, thetas_5 = a_l.etape_5(a_r, theta_f, max_acc_ang, res3[-1][1])
 
+t_4 = time()
 res4, t4, thetas_4 = a_l.etape_4(res3[-1][0], res5[0][0], res3[-1][1], t3[-1], theta_f)
 
 T1 = time()
 
 print('Calculation process took {0} seconds'.format(T1 - T0))
+print('   Step 1 took {0} seconds'.format(t_2 - t_1))
+print('   Step 2 took {0} seconds'.format(t_3 - t_2))
+print('   Step 3 took {0} seconds'.format(t_5 - t_3))
+print('   Step 4 took {0} seconds'.format(T1 - t_4))
+print('   Step 5 took {0} seconds'.format(t_4 - t_5))
 
 T2 = time()
 
@@ -45,7 +55,7 @@ T3 = time()
 print('Data regroup process took {0} seconds'.format(T3 - T2))
 
 T4 = time()
-Utils.save_pos_and_theta(t, res, thetas, 1000)
+Utils.save_pos_and_theta(t, res, thetas, 500)
 T5 = time()
 
 print('Data save process took {0} seconds'.format(T5 - T4))
@@ -80,4 +90,4 @@ plt.plot([t4[-1], t4[-1]], [np.floor(np.max(thetas) / 5) * 5 + 5, 0], color='cya
 plt.legend(loc=5)
 plt.xlabel('Temps t en s')
 plt.grid()
-#plt.show()
+plt.show()
