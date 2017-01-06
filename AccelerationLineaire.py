@@ -1,4 +1,5 @@
 import numpy as np
+from time import time
 from scipy.integrate import quad
 from scipy.optimize import ridder
 
@@ -89,7 +90,7 @@ def etape_3(a_retour, theta_final, acc_ang_max, v_e2, x_e2, t0):
     return res, t, thetas
 
 
-def etape_5(a_r, theta_final, acc_ang_max, delta_v):
+def etape_5(a_r, theta_final, acc_ang_max, delta_v, x3):
 
     delta_theta = np.arctan(a_r / g)
 
@@ -147,19 +148,62 @@ def etape_5(a_r, theta_final, acc_ang_max, delta_v):
 
         return x, v, a, thetas, T, T_demi
 
+    def make_x_v_a_table(theta1, theta2, v0, x0 = 0):
+
+        theta_1, theta_2 = theta_final + theta1, theta_final + theta2
+        delta = theta_2 - theta_1
+        T = 2 * np.sqrt(abs(delta) / acc_ang_max)
+        T_demi = T / 2
+        sg = delta / abs(delta)
+
+        f_1 = lambda x: g * np.tan(theta_final - (sg * 0.5 * acc_ang_max * (x ** 2) + theta_1))
+        f_2 = lambda x: g * np.tan(theta_final - (-sg * 0.5 * acc_ang_max * (T - x) ** 2 + theta_2))
+
+        def a(t):
+            if t > T_demi:
+                return f_2(t)
+            return f_1(t)
+
+        def thetas(t):
+            if t < T_demi:
+                return sg * 0.5 * acc_ang_max * t ** 2 + theta_1
+            return -sg * 0.5 * acc_ang_max * (T - t) ** 2 + theta_2
+
+        t_s = np.linspace(0, T, 300)
+        a_s = [a(t) for t in t_s]
+        v_s = integ_table(a_s, t_s, v0)
+        x_s = integ_table(v_s, t_s, x0)
+        thetas_s = [thetas(t) for t in t_s]
+
+        return x_s, v_s, a_s, thetas_s, T, t_s
+
     log('vT(0) = {0}'.format(vT(0)))
     log('vT(delta_theta) = {0}'.format(vT(delta_theta)))
     log('delta_v = {0}'.format(delta_v))
 
-    if vT(delta_theta) < -delta_v / 2:
+    # delta_x = (x1(T_1) - x2(T_2) + x1(0) - x3)
+    # log("ar = {0}".format(a_r))
+    # log("delta_x = {0}".format(delta_x))
+    # log("delta = {0}".format(delta_v**2 + a_r * delta_x))
+    # t_f = 2 * (delta_v + sqrt(delta_v**2 + a_r * delta_x))
+    # log('t_f + = {0}'.format(t_f))
+
+    if vT(delta_theta) < -2 * delta_v:
         log('Will go easy way')
-        v_T = vT(delta_theta)
-        x1, v1, a1, thetas1, T_1, T_demi_1 = make_x_v_a(0, -delta_theta, delta_v)
-        x2, v2, a2, thetas2, T_2, T_demi_2 = make_x_v_a(-delta_theta, 0, -v_T)
 
+        x1, v1, a1, thetas1, T_1, t_1 = make_x_v_a_table(0, -delta_theta, 2 * delta_v)
+        x2, v2, a2, thetas2, T_2, t_2 = make_x_v_a_table(-delta_theta, 0, delta_v)
 
+        T = -delta_v / a_r
 
-        return None
+        res_2, thetas_2 = [(x2[i] - x2[-1], v2[i], a2[i]) for i in range(len(x1))], thetas2
+
+        res_1, thetas_1 = [(x1[i] - (x1[-1] + x2[-1]), v1[i], a1[i]) for i in range(len(x1))], thetas1
+
+        t_1, t_2 = [e for e in t_1], [e + T_1 for e in t_2]
+        res, t, thetas = res_1 + res_2, t_1 + t_2, thetas_1 + thetas_2
+
+        return res, t, thetas, T
 
     log('Will go hard way')
     log('Looking for theta value')
@@ -191,7 +235,7 @@ def etape_5(a_r, theta_final, acc_ang_max, delta_v):
     t = t_1 + t_2
     thetas = thetas_1 + thetas_2
 
-    return res, t, thetas
+    return res, t, thetas, None, None
 
 
 def etape_4(x3, x5, v3, t0, theta_f):
