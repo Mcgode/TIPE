@@ -76,4 +76,13 @@ def save_pos_and_theta(t, res, thetas, n=0):
     file.close()
 
 
+def save_speed(res, t, n=200):
+    data = smooth([[t[i], res[i][1]] for i in range(len(res))], n)
+    with open('/Users/max/Desktop/speed.txt', 'w') as f:
+        f.write("{0}\n".format(int(1000 * data[1][0])))
+        for e in data:
+            f.write('{0}\n'.format(int(1000 * e[1])))
+        f.close()
+
+
 
